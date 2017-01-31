@@ -1,6 +1,6 @@
-﻿using System.Globalization;
-using System.Linq;
+﻿using System.Linq;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class GameController : MonoBehaviour
@@ -13,7 +13,7 @@ public class GameController : MonoBehaviour
     #endregion
     #region Public fields
 
-    public Text EndText;
+    public Text InfoText;
     public GameObject Jewel;
     public Text ScoreText;
     public GameObject Terrain;
@@ -24,6 +24,7 @@ public class GameController : MonoBehaviour
 
     private int m_JewelsCount;
     private float m_Timer;
+    private bool m_IsGameFinished;
 
     #endregion
     #region Private methods
@@ -57,18 +58,27 @@ public class GameController : MonoBehaviour
         }
     }
 
+    private string FormatTime(float timer)
+    {
+        int minutes = Mathf.FloorToInt(timer / 60F);
+        int seconds = Mathf.FloorToInt(timer - minutes * 60);
+        int miliseconds = Mathf.FloorToInt((timer - minutes * 60 - seconds) * 100);
+        return string.Format("{0:00}:{1:00}:{2:00}", minutes, seconds, miliseconds);
+    }
+
     private void SetTexts()
     {
         if (m_JewelsCount != NUM_OF_JEWELS)
         {
             m_JewelsCount = NUM_OF_JEWELS - GameObject.FindGameObjectsWithTag("Jewel").Length;
             m_Timer += Time.deltaTime;
-            TimerText.text = m_Timer.ToString(CultureInfo.InvariantCulture);
+            TimerText.text = FormatTime(m_Timer);
             ScoreText.text = "Score: " + m_JewelsCount + " / " + NUM_OF_JEWELS;
         }
         else
         {
-            EndText.text = "Mission Passed!";
+            InfoText.text = "Congratulations!";
+            m_IsGameFinished = true;
         }
     }
 
@@ -77,13 +87,34 @@ public class GameController : MonoBehaviour
     {
         CreateTerrain();
         CreateJewels();
-        EndText.text = "";
-        m_JewelsCount = 0;
+        Cursor.visible = false;
+        m_IsGameFinished = false;
+        InfoText.text = "";
         SetTexts();
     }
 
     private void Update()
     {
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            if (Mathf.FloorToInt(Time.timeScale) == 0)
+            {
+                Time.timeScale = 1;
+                InfoText.text = "";
+            }
+            else
+            {
+                Time.timeScale = 0;
+                InfoText.text = "Paused";
+            }
+        }
+        if ((m_IsGameFinished || Mathf.FloorToInt(Time.timeScale) == 0) && Input.GetKeyDown(KeyCode.Return))
+        {
+            SceneManager.LoadScene("MainScene");
+            m_IsGameFinished = false;
+            Time.timeScale = 1;
+            InfoText.text = "";
+        }
         SetTexts();
     }
 
