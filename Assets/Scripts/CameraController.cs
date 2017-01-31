@@ -4,7 +4,7 @@ public class CameraController : MonoBehaviour
 {
     #region Constants
 
-    private const float CURRENT_X_SENSITIVITY = 30.0f;
+    private const float CURRENT_X_SENSITIVITY = 20.0f;
     private const float DISTANCE = 10.0f;
     private const float Y_ANGLE_MAX = 45.0f;
     private const float Y_ANGLE_MIN = 10.0f;
