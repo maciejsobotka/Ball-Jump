@@ -3,14 +3,24 @@ using UnityEngine.UI;
 
 public class BallController : MonoBehaviour
 {
+    #region Constants
+
+    private const float JUMP_SPEED = 20;
+    private const float SPEED = 15;
+
+    #endregion
+    #region Public fields
+
+    public Camera Cam;
+    public Text EndText;
+    public Text ScoreText;
+
+    #endregion
     #region Private fields
 
     private int m_JewelsCount;
-
-    private float m_JumpSpeed;
+    private int m_NumOfJewels;
     private Rigidbody m_Rigidbody;
-    private Text m_ScoreText;
-    private float m_Speed;
 
     #endregion
     #region Private methods
@@ -22,9 +32,9 @@ public class BallController : MonoBehaviour
         float moveVertical = Input.GetAxis("Vertical");
         float moveJump = Input.GetAxis("Jump");
 
-        var movement = new Vector3(moveHorizontal * m_Speed, moveJump * m_JumpSpeed, moveVertical * m_Speed);
-
-        m_Rigidbody.AddForce(movement);
+        //transform.rotation = Cam.transform.rotation;
+        var movement = new Vector3(moveHorizontal * SPEED, moveJump * JUMP_SPEED, moveVertical * SPEED);
+        m_Rigidbody.AddForce(Cam.transform.rotation * movement);
     }
 
     private void OnTriggerEnter(Collider other)
@@ -39,17 +49,20 @@ public class BallController : MonoBehaviour
 
     private void SetCountText()
     {
-        m_ScoreText.text = "Score: " + m_JewelsCount;
+        ScoreText.text = "Score: " + m_JewelsCount;
+        if (m_JewelsCount == m_NumOfJewels)
+        {
+            EndText.text = "Mission Passed!";
+        }
     }
 
     // Use this for initialization
     private void Start()
     {
         m_Rigidbody = GetComponent<Rigidbody>();
-        m_Speed = 15;
-        m_JumpSpeed = 20;
+        EndText.text = "";
+        m_NumOfJewels = GameObject.FindGameObjectsWithTag("Jewel").Length;
         m_JewelsCount = 0;
-        m_ScoreText = GetComponentInParent<Canvas>().GetComponent<Text>();
         SetCountText();
     }
 
