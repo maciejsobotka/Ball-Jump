@@ -1,5 +1,7 @@
-﻿using System.Linq;
+﻿using System.Globalization;
+using System.Linq;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class GameController : MonoBehaviour
 {
@@ -11,8 +13,17 @@ public class GameController : MonoBehaviour
     #endregion
     #region Public fields
 
+    public Text EndText;
     public GameObject Jewel;
+    public Text ScoreText;
     public GameObject Terrain;
+    public Text TimerText;
+
+    #endregion
+    #region Private fields
+
+    private int m_JewelsCount;
+    private float m_Timer;
 
     #endregion
     #region Private methods
@@ -46,11 +57,34 @@ public class GameController : MonoBehaviour
         }
     }
 
+    private void SetTexts()
+    {
+        if (m_JewelsCount != NUM_OF_JEWELS)
+        {
+            m_JewelsCount = NUM_OF_JEWELS - GameObject.FindGameObjectsWithTag("Jewel").Length;
+            m_Timer += Time.deltaTime;
+            TimerText.text = m_Timer.ToString(CultureInfo.InvariantCulture);
+            ScoreText.text = "Score: " + m_JewelsCount + " / " + NUM_OF_JEWELS;
+        }
+        else
+        {
+            EndText.text = "Mission Passed!";
+        }
+    }
+
     // Use this for initialization
     private void Start()
     {
         CreateTerrain();
         CreateJewels();
+        EndText.text = "";
+        m_JewelsCount = 0;
+        SetTexts();
+    }
+
+    private void Update()
+    {
+        SetTexts();
     }
 
     #endregion

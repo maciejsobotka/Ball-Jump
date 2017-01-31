@@ -1,6 +1,5 @@
 ﻿using System.Linq;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class BallController : MonoBehaviour
 {
@@ -13,14 +12,10 @@ public class BallController : MonoBehaviour
     #region Public fields
 
     public Camera Cam;
-    public Text EndText;
-    public Text ScoreText;
 
     #endregion
     #region Private fields
 
-    private int m_JewelsCount;
-    private int m_NumOfJewels;
     private Rigidbody m_Rigidbody;
 
     #endregion
@@ -42,18 +37,7 @@ public class BallController : MonoBehaviour
     {
         if (other.gameObject.CompareTag("Jewel"))
         {
-            other.gameObject.SetActive(false);
-            m_JewelsCount++;
-            SetCountText();
-        }
-    }
-
-    private void SetCountText()
-    {
-        ScoreText.text = "Score: " + m_JewelsCount + " / " + m_NumOfJewels;
-        if (m_JewelsCount == m_NumOfJewels)
-        {
-            EndText.text = "Mission Passed!";
+            Destroy(other.gameObject);
         }
     }
 
@@ -65,14 +49,10 @@ public class BallController : MonoBehaviour
         if (colliders.Length > 2)
         {
             float maxScaleY = colliders.Aggregate<Collider, float>(0, (current, someCollider) => Mathf.Max(current, someCollider.transform.localScale.y));
-            var position = new Vector3(0, maxScaleY + 0.5f,0);
+            var position = new Vector3(0, maxScaleY + 0.5f, 0);
             transform.position = position;
         }
         m_Rigidbody = GetComponent<Rigidbody>();
-        EndText.text = "";
-        m_NumOfJewels = GameObject.FindGameObjectsWithTag("Jewel").Length;
-        m_JewelsCount = 0;
-        SetCountText();
     }
 
     #endregion
