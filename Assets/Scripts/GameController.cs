@@ -13,18 +13,22 @@ public class GameController : MonoBehaviour
     #endregion
     #region Public fields
 
-    public Text InfoText;
+    public Canvas Cnvs;
     public GameObject Jewel;
-    public Text ScoreText;
     public GameObject Terrain;
-    public Text TimerText;
 
     #endregion
     #region Private fields
 
-    private int m_JewelsCount;
-    private float m_Timer;
+    private bool m_GameFinishedFirstFrame;
+
+    private Text m_InfoText;
     private bool m_IsGameFinished;
+    private int m_JewelsCount;
+    private Text m_ScoreText;
+    private float m_Timer;
+    private Text m_TimerText;
+    private GameObject[] m_UiComponents;
 
     #endregion
     #region Private methods
@@ -72,12 +76,12 @@ public class GameController : MonoBehaviour
         {
             m_JewelsCount = NUM_OF_JEWELS - GameObject.FindGameObjectsWithTag("Jewel").Length;
             m_Timer += Time.deltaTime;
-            TimerText.text = FormatTime(m_Timer);
-            ScoreText.text = "Score: " + m_JewelsCount + " / " + NUM_OF_JEWELS;
+            m_TimerText.text = FormatTime(m_Timer);
+            m_ScoreText.text = "Score: " + m_JewelsCount + " / " + NUM_OF_JEWELS;
         }
         else
         {
-            InfoText.text = "Congratulations!";
+            m_InfoText.text = "Congratulations!";
             m_IsGameFinished = true;
         }
     }
@@ -87,9 +91,19 @@ public class GameController : MonoBehaviour
     {
         CreateTerrain();
         CreateJewels();
+        Text[] cnvsChildren = Cnvs.GetComponentsInChildren<Text>();
+        m_ScoreText = cnvsChildren[0];
+        m_InfoText = cnvsChildren[1];
+        m_TimerText = cnvsChildren[2];
+        m_UiComponents = GameObject.FindGameObjectsWithTag("UI");
+        foreach (GameObject UiComponent in m_UiComponents)
+        {
+            UiComponent.SetActive(false);
+        }
         Cursor.visible = false;
+        m_GameFinishedFirstFrame = true;
         m_IsGameFinished = false;
-        InfoText.text = "";
+        m_InfoText.text = "";
         SetTexts();
     }
 
@@ -100,20 +114,37 @@ public class GameController : MonoBehaviour
             if (Mathf.FloorToInt(Time.timeScale) == 0)
             {
                 Time.timeScale = 1;
-                InfoText.text = "";
+                m_InfoText.text = "";
+                foreach (GameObject UiComponent in m_UiComponents)
+                {
+                    UiComponent.SetActive(false);
+                }
             }
             else
             {
                 Time.timeScale = 0;
-                InfoText.text = "Paused";
+                m_InfoText.text = "Paused";
+                foreach (GameObject UiComponent in m_UiComponents)
+                {
+                    UiComponent.SetActive(true);
+                }
             }
+        }
+        if (m_IsGameFinished && m_GameFinishedFirstFrame)
+        {
+            GetComponent<AudioSource>().Play();
+            m_GameFinishedFirstFrame = false;
+        }
+        if (m_IsGameFinished)
+        {
+            m_UiComponents[1].SetActive(true);
         }
         if ((m_IsGameFinished || Mathf.FloorToInt(Time.timeScale) == 0) && Input.GetKeyDown(KeyCode.Return))
         {
             SceneManager.LoadScene("MainScene");
             m_IsGameFinished = false;
             Time.timeScale = 1;
-            InfoText.text = "";
+            m_InfoText.text = "";
         }
         SetTexts();
     }

@@ -37,6 +37,7 @@ public class BallController : MonoBehaviour
     {
         if (other.gameObject.CompareTag("Jewel"))
         {
+            GetComponents<AudioSource>()[1].Play();
             Destroy(other.gameObject);
         }
     }
@@ -53,6 +54,14 @@ public class BallController : MonoBehaviour
             transform.position = position;
         }
         m_Rigidbody = GetComponent<Rigidbody>();
+    }
+
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            GetComponents<AudioSource>()[0].Play();
+        }
     }
 
     #endregion
